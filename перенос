@@ -1,0 +1,41 @@
+TAG_VERSION=$1
+
+
+if [ -z "$TAG_VERSION" ]; then
+  echo "Ошибка"
+  exit 1
+fi
+
+echo "Переключаемся на dev"
+git checkout dev
+
+
+echo "Подтягиваем последние изменения из dev"
+git pull origin dev
+
+
+echo "Переключаемся на prd"
+git checkout prd
+
+
+echo "Подтягиваем последние изменения из prd"
+git pull origin prd
+
+
+echo "Мержим dev в prd"
+git merge dev
+
+
+if [ $? -ne 0 ]; then
+  echo "Возникли конфликты"
+  exit 1
+fi
+
+
+echo "Создаем тег версии $TAG_VERSION..."
+git tag -a "$TAG_VERSION" -m "Release $TAG_VERSION"
+
+
+echo "Отправляем изменения и тег в удаленный репозиторий"
+git push origin prd
+git push origin "$TAG_VERSION"
